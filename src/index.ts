@@ -38,7 +38,9 @@ export async function store(
 
 export async function saturate(
 	hash: string,
-	stream: fs.WriteStream | http.ServerResponse | Writable
+	stream: fs.WriteStream | http.ServerResponse | Writable,
+	startAt: number = 0,
+	stopAt: number = Number.MAX_SAFE_INTEGER
 ) {
 	const hashes = (await nsblob.fetch(hash)).toString('hex');
 
@@ -49,8 +51,24 @@ export async function saturate(
 	stream.on('error', () => ((streamEnded = true), cb()));
 	stream.on('finish', () => ((streamEnded = true), cb()));
 
+	stopAt -= startAt;
+
 	for (let i = 0; i < hashes.length; i += 64) {
-		if (!stream.write(await nsblob.fetch(hashes.slice(i, i + 64)))) {
+		let buffer = await nsblob.fetch(hashes.slice(i, i + 64));
+		const sub = Math.min(buffer.length, startAt);
+
+		if (sub) {
+			startAt -= sub;
+			buffer = buffer.subarray(sub);
+		}
+
+		if (buffer.length > stopAt) {
+			buffer = buffer.subarray(0, stopAt);
+		}
+
+		stopAt -= buffer.length;
+
+		if (!stream.write(buffer)) {
 			await new Promise<void>((resolve) => {
 				let resolved = false;
 
@@ -65,7 +83,7 @@ export async function saturate(
 			});
 		}
 
-		if (streamEnded) {
+		if (streamEnded || !stopAt) {
 			return stream.end();
 		}
 	}
@@ -73,10 +91,14 @@ export async function saturate(
 	return stream.end();
 }
 
-export function fetch(hash: string): PassThrough {
+export function fetch(
+	hash: string,
+	startAt: number = 0,
+	stopAt: number = Number.MAX_SAFE_INTEGER
+): PassThrough {
 	const stream = new PassThrough();
 
-	saturate(hash, stream);
+	saturate(hash, stream, startAt, stopAt);
 
 	return stream;
 }
