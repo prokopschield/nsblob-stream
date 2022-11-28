@@ -102,3 +102,25 @@ export function fetch(
 
 	return stream;
 }
+
+export function store_buffer(buffer: Buffer) {
+	const stream = new PassThrough();
+
+	setTimeout(() => {
+		stream.write(buffer);
+		stream.end();
+	});
+
+	return store(stream);
+}
+
+export function fetch_buffer(hash: string) {
+	const stream = fetch(hash);
+	const chunks = Array<Buffer>();
+
+	stream.on('data', (chunk) => chunks.push(chunk));
+
+	return new Promise((resolve) => {
+		stream.on('end', () => resolve(Buffer.concat(chunks)));
+	});
+}
