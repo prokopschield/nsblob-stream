@@ -1,7 +1,7 @@
 {
 	"name": "nsblob-stream",
 	"description": "store streams in nsblob",
-	"version": "0.1.0-3",
+	"version": "0.1.0-4",
 	"main": "lib/index.js",
 	"bin": {
 		"nsblob-stream": "lib/cli.js"
