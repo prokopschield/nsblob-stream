@@ -66,11 +66,11 @@ export async function saturate(
 			buffer = buffer.subarray(0, stopAt);
 		}
 
-		stopAt -= buffer.length;
-
 		if (streamEnded || !stopAt) {
 			return stream.end();
 		}
+
+		stopAt -= buffer.length;
 
 		if (!stream.write(buffer)) {
 			await new Promise<void>((resolve) => {
