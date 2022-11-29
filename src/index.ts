@@ -79,7 +79,7 @@ export async function saturate(
 					}
 				};
 
-				stream.on('drain', cb);
+				stream.once('drain', cb);
 			});
 		}
 
