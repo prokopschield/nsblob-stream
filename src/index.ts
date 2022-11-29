@@ -42,8 +42,6 @@ export async function saturate(
 	startAt: number = 0,
 	stopAt: number = Number.MAX_SAFE_INTEGER
 ) {
-	const hashes = (await nsblob.fetch(hash)).toString('hex');
-
 	let streamEnded = false;
 	let cb = () => {};
 
@@ -52,6 +50,12 @@ export async function saturate(
 	stream.on('finish', () => ((streamEnded = true), cb()));
 
 	stopAt -= startAt;
+
+	const hashes = (await nsblob.fetch(hash))
+		.toString('hex')
+		.slice((startAt >> 12) << 4);
+
+	startAt %= 4096;
 
 	for (let i = 0; i < hashes.length; i += 64) {
 		let buffer = await nsblob.fetch(hashes.slice(i, i + 64));
