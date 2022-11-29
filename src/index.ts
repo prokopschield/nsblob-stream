@@ -68,6 +68,10 @@ export async function saturate(
 
 		stopAt -= buffer.length;
 
+		if (streamEnded || !stopAt) {
+			return stream.end();
+		}
+
 		if (!stream.write(buffer)) {
 			await new Promise<void>((resolve) => {
 				let resolved = false;
