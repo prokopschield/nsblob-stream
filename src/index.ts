@@ -1,5 +1,6 @@
 import fs from 'fs';
 import http from 'http';
+import { Socket } from 'net';
 import nsblob from 'nsblob';
 import { PassThrough, Readable, Writable } from 'stream';
 
@@ -132,3 +133,5 @@ export function fetch_buffer(hash: string): Promise<Buffer> {
 		stream.on('end', () => resolve(Buffer.concat(chunks)));
 	});
 }
+
+export const socket: { close: Function } = nsblob.socket;
