@@ -122,13 +122,13 @@ export function store_buffer(buffer: Buffer) {
 	return store(stream);
 }
 
-export function fetch_buffer(hash: string) {
+export function fetch_buffer(hash: string): Promise<Buffer> {
 	const stream = fetch(hash);
 	const chunks = Array<Buffer>();
 
 	stream.on('data', (chunk) => chunks.push(chunk));
 
-	return new Promise((resolve) => {
+	return new Promise<Buffer>((resolve) => {
 		stream.on('end', () => resolve(Buffer.concat(chunks)));
 	});
 }
