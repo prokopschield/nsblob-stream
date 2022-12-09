@@ -4,7 +4,7 @@ import { Socket } from 'net';
 import nsblob from 'nsblob';
 import { PassThrough, Readable, Writable } from 'stream';
 
-const CHUNK_LENGTH = 0x1000;
+const CHUNK_LENGTH = 0x10000;
 
 export async function store(
 	stream: fs.ReadStream | http.IncomingMessage | Readable
@@ -54,7 +54,7 @@ export async function saturate(
 
 	const hashes = (await nsblob.fetch(hash))
 		.toString('hex')
-		.slice((startAt >> 12) << 4);
+		.slice((startAt >> 16) << 4);
 
 	startAt %= 4096;
 
