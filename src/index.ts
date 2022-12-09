@@ -54,7 +54,7 @@ export async function saturate(
 
 	const hashes = (await nsblob.fetch(hash))
 		.toString('hex')
-		.slice((startAt >> 16) << 4);
+		.slice((startAt >> 16) << 6);
 
 	startAt %= CHUNK_LENGTH;
 
