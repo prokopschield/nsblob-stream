@@ -56,7 +56,7 @@ export async function saturate(
 		.toString('hex')
 		.slice((startAt >> 16) << 4);
 
-	startAt %= 4096;
+	startAt %= CHUNK_LENGTH;
 
 	for (let i = 0; i < hashes.length; i += 64) {
 		let buffer = await nsblob.fetch(hashes.slice(i, i + 64));
