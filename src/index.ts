@@ -13,10 +13,16 @@ const CHUNK_LENGTH = 0x10000;
  */
 export async function store(
 	stream: fs.ReadStream | http.IncomingMessage | Readable,
-	properties: { chunks?: number; done?: boolean; length?: number } = {}
+	properties: {
+		chunks?: number;
+		done?: boolean;
+		length?: number;
+		uploaded?: number;
+	} = {}
 ): Promise<string> {
 	let chunks = 0;
 	let length = 0;
+	let uploaded = 0;
 	const promises = new Array<Promise<string>>();
 
 	let buffer = Buffer.alloc(0);
@@ -43,6 +49,14 @@ export async function store(
 	}
 
 	properties.done = true;
+
+	for (const promise of promises) {
+		await promise;
+
+		properties.uploaded = uploaded += CHUNK_LENGTH;
+	}
+
+	properties.uploaded = uploaded = length;
 
 	const hashes = await Promise.all(promises);
 
