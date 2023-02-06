@@ -1,6 +1,5 @@
 import fs from 'fs';
 import http from 'http';
-import { Socket } from 'net';
 import nsblob from 'nsblob';
 import { PassThrough, Readable, Writable } from 'stream';
 
