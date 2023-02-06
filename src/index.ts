@@ -5,14 +5,26 @@ import { PassThrough, Readable, Writable } from 'stream';
 
 const CHUNK_LENGTH = 0x10000;
 
+/**
+ * Store a stream in the nodesite cdn
+ * @param stream the stream you wish to store
+ * @param properties an object which will be updated as the stream is read
+ * @returns a promise of the stream's hash
+ */
 export async function store(
-	stream: fs.ReadStream | http.IncomingMessage | Readable
+	stream: fs.ReadStream | http.IncomingMessage | Readable,
+	properties: { chunks?: number; done?: boolean; length?: number } = {}
 ): Promise<string> {
+	let chunks = 0;
+	let length = 0;
 	const promises = new Array<Promise<string>>();
 
 	let buffer = Buffer.alloc(0);
 
 	stream.on('data', (chunk: string | Buffer) => {
+		properties.done = false;
+		properties.chunks = chunks += 1;
+		properties.length = length += chunk.length;
 		buffer = Buffer.concat([buffer, Buffer.from(chunk)]);
 
 		while (buffer.length >= CHUNK_LENGTH) {
@@ -26,8 +38,11 @@ export async function store(
 	await new Promise((resolve) => stream.on('end', resolve));
 
 	if (buffer.length) {
+		properties.chunks = chunks += 1;
 		promises.push(nsblob.store(buffer));
 	}
+
+	properties.done = true;
 
 	const hashes = await Promise.all(promises);
 
