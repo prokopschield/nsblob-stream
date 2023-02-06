@@ -11,7 +11,7 @@
 	},
 	"author": "Prokop Schield",
 	"dependencies": {
-		"nsblob": "0.2.18-2"
+		"nsblob": "^0.2.19"
 	},
 	"devDependencies": {
 		"@types/node": ">=16"
