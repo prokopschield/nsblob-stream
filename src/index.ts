@@ -41,7 +41,23 @@ export async function store(
 
 	stream.resume();
 
-	await new Promise((resolve) => stream.on('end', resolve));
+	await new Promise<void>((resolve, reject) => {
+		let resolved = false;
+
+		stream.on('end', () => {
+			if (!resolved) {
+				resolved = true;
+				resolve();
+			}
+		});
+
+		stream.on('error', (error) => {
+			if (!resolved) {
+				resolved = true;
+				reject(error);
+			}
+		});
+	});
 
 	if (buffer.length) {
 		properties.chunks = chunks += 1;
