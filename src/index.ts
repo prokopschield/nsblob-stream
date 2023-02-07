@@ -182,4 +182,136 @@ export function fetch_buffer(
 	});
 }
 
+export class Source<T extends Record<string, string>> {
+	private _hash: string;
+	private _length = 0;
+	private _ready = false;
+	private _stream = '';
+
+	constructor(hash: string) {
+		if ((this._hash = hash || '')) {
+			this.change(this._hash);
+		}
+	}
+
+	async change(hash: string = this._hash) {
+		this._ready = false;
+		Object.assign(this, await nsblob.fetch_json((this._hash = hash)));
+		this._ready = true;
+	}
+
+	async update(props: Record<string, number | string> = {}) {
+		props = {
+			...Object.fromEntries(
+				[...Object.entries(this)].filter(
+					([key]) => !key.startsWith('_')
+				)
+			),
+			...props,
+			_length: this._length,
+			_stream: this._stream,
+		};
+
+		return (this._hash = await nsblob.store_json(props));
+	}
+
+	get hash() {
+		return this._hash;
+	}
+
+	set hash(hash) {
+		this.change(hash);
+	}
+
+	get length() {
+		return this._length;
+	}
+
+	get props(): T {
+		const self = this;
+		const record = self as Record<string, unknown>;
+
+		return new Proxy(record as T, {
+			get(_target, key) {
+				if (key === Symbol.toPrimitive) {
+					return () => self._hash;
+				}
+
+				return String(record[String(key)] ?? '');
+			},
+
+			set(_target, key, value) {
+				self.update({ [key]: (record[String(key)] = String(value)) });
+
+				return true;
+			},
+		});
+	}
+
+	set props(props) {
+		this.update(props);
+	}
+
+	async toBuffer(startAt: number = 0, stopAt: number = this._length) {
+		if (!this._ready) {
+			await this.change(this._hash);
+		}
+
+		return fetch_buffer(this._stream, startAt, stopAt);
+	}
+
+	async toStream(startAt: number = 0, stopAt: number = this._length) {
+		if (!this._ready) {
+			await this.change(this._hash);
+		}
+
+		return fetch(this._stream, startAt, stopAt);
+	}
+
+	async saturate(
+		stream: fs.WriteStream | http.ServerResponse | Writable,
+		startAt: number = 0,
+		stopAt: number = Number.MAX_SAFE_INTEGER
+	) {
+		return saturate(this._stream, stream, startAt, stopAt);
+	}
+
+	static async fromBuffer<T extends Record<string, string>>(
+		buffer: Buffer,
+		props: Partial<T> = {}
+	): Promise<Source<T>> {
+		const source = new Source<T>('');
+
+		source._length = buffer.length;
+		source._stream = await store_buffer(buffer);
+
+		await source.update(
+			Object.fromEntries(
+				[...Object.entries(props)].filter(([, value]) => value)
+			)
+		);
+
+		return source;
+	}
+
+	static async fromStream<T extends Record<string, string>>(
+		stream: fs.ReadStream | http.IncomingMessage | Readable,
+		props: Partial<T> = {}
+	) {
+		const properties = { length: 0 };
+		const source = new Source<T>('');
+
+		source._stream = await store(stream, properties);
+		source._length = properties.length;
+
+		await source.update(
+			Object.fromEntries(
+				[...Object.entries(props)].filter(([, value]) => value)
+			)
+		);
+
+		return source;
+	}
+}
+
 export const socket: { close: Function } = nsblob.socket;
