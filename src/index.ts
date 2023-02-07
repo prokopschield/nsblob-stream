@@ -167,8 +167,12 @@ export function store_buffer(buffer: Buffer) {
 	return store(stream);
 }
 
-export function fetch_buffer(hash: string): Promise<Buffer> {
-	const stream = fetch(hash);
+export function fetch_buffer(
+	hash: string,
+	startAt: number = 0,
+	stopAt: number = Number.MAX_SAFE_INTEGER
+): Promise<Buffer> {
+	const stream = fetch(hash, startAt, stopAt);
 	const chunks = Array<Buffer>();
 
 	stream.on('data', (chunk) => chunks.push(chunk));
