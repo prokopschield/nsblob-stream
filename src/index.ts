@@ -203,7 +203,9 @@ export class Source<T extends Record<string, string>> {
 	async update(props: Record<string, number | string> = {}) {
 		props = {
 			...Object.fromEntries(
-				[...Object.entries(this)].filter(([key]) => !key.startsWith('_'))
+				[...Object.entries(this)].filter(
+					([key]) => !key.startsWith('_')
+				)
 			),
 			...props,
 			_length: this._length,
