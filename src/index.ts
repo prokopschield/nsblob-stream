@@ -230,6 +230,11 @@ export class Source<T extends Record<string, string>> {
 		return this._length;
 	}
 
+	/** returns hash of raw stream, can be passed to non-Source methods */
+	get raw() {
+		return this._stream;
+	}
+
 	get props(): T {
 		const self = this;
 		const record = self as Record<string, unknown>;
