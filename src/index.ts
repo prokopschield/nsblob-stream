@@ -212,6 +212,9 @@ export class Source<T extends Record<string, string>> {
 			_stream: this._stream,
 		};
 
+		delete props.props;
+		Object.assign(this, props);
+
 		return (this._hash = await nsblob.store_json(props));
 	}
 
