@@ -320,6 +320,14 @@ export class Source<T extends Record<string, string>> {
 
 		return source;
 	}
+
+	static async fromHash<T extends Record<string, string>>(hash: string) {
+		const source = new Source<T>('');
+
+		await source.change(hash);
+
+		return source;
+	}
 }
 
 export const socket: { close: Function } = nsblob.socket;
