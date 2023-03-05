@@ -296,6 +296,13 @@ export class Source<T extends Record<string, string>> {
 		return saturate(this._stream, stream, startAt, stopAt);
 	}
 
+	pipe<T extends NodeJS.WritableStream>(
+		destination: T,
+		options?: { end?: boolean | undefined }
+	) {
+		return fetch(this.raw).pipe(destination, options);
+	}
+
 	static async fromBuffer<T extends Record<string, string>>(
 		buffer: Buffer,
 		props: Partial<T> = {}
