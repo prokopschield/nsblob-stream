@@ -260,6 +260,18 @@ export class Source<T extends Record<string, string>> {
 		this.update(props);
 	}
 
+	/** clone this Source with new props */
+	async clone<N extends Record<string, string>>(
+		props: N
+	): Promise<Source<N & T>> {
+		const new_source = new Source<N & T>('');
+
+		await new_source.change(this.hash);
+		await new_source.update(props);
+
+		return new_source;
+	}
+
 	async toBuffer(startAt: number = 0, stopAt: number = this._length) {
 		if (!this._ready) {
 			await this.change(this._hash);
