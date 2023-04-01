@@ -6,9 +6,6 @@
 	"bin": {
 		"nsblob-stream": "lib/cli.js"
 	},
-	"scripts": {
-		"start": "node lib/cli"
-	},
 	"author": "Prokop Schield",
 	"dependencies": {
 		"nsblob": "^0.2.22"
