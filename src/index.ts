@@ -312,7 +312,9 @@ export class Source<T extends Record<string, string>> {
 
 		await source.update(
 			Object.fromEntries(
-				[...Object.entries(props)].filter(([, value]) => value)
+				[...Object.entries(props)]
+					.filter(([, value]) => value)
+					.map(([key, value]) => [String(key), String(value)])
 			)
 		);
 
@@ -331,7 +333,9 @@ export class Source<T extends Record<string, string>> {
 
 		await source.update(
 			Object.fromEntries(
-				[...Object.entries(props)].filter(([, value]) => value)
+				[...Object.entries(props)]
+					.filter(([, value]) => value)
+					.map(([key, value]) => [String(key), String(value)])
 			)
 		);
 
