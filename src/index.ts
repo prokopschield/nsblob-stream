@@ -1,5 +1,5 @@
 import nsblob from 'nsblob';
-import { PassThrough } from 'stream';
+import { PassThrough, Readable, Writable } from 'stream';
 
 const CHUNK_LENGTH = 0x10000;
 
@@ -10,7 +10,7 @@ const CHUNK_LENGTH = 0x10000;
  * @returns a promise of the stream's hash
  */
 export async function store(
-	stream: NodeJS.ReadableStream,
+	stream: NodeJS.ReadableStream | Readable,
 	properties: {
 		chunks?: number;
 		done?: boolean;
@@ -81,7 +81,7 @@ export async function store(
 
 export async function saturate(
 	hash: string,
-	stream: NodeJS.WritableStream,
+	stream: NodeJS.WritableStream | Writable,
 	startAt: number = 0,
 	stopAt: number = Number.MAX_SAFE_INTEGER
 ) {
@@ -287,14 +287,14 @@ export class Source<T extends Record<string, string>> {
 	}
 
 	async saturate(
-		stream: NodeJS.WritableStream,
+		stream: NodeJS.WritableStream | Writable,
 		startAt: number = 0,
 		stopAt: number = Number.MAX_SAFE_INTEGER
 	) {
 		return saturate(this._stream, stream, startAt, stopAt);
 	}
 
-	pipe<T extends NodeJS.WritableStream>(
+	pipe<T extends NodeJS.WritableStream | Writable>(
 		destination: T,
 		options?: { end?: boolean | undefined }
 	) {
@@ -322,7 +322,7 @@ export class Source<T extends Record<string, string>> {
 	}
 
 	static async fromStream<T extends Record<string, string>>(
-		stream: NodeJS.ReadableStream,
+		stream: NodeJS.ReadableStream | Readable,
 		props: Partial<T> = {}
 	) {
 		const properties = { length: 0 };

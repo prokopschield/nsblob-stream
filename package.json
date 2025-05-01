@@ -1,14 +1,14 @@
 {
 	"name": "nsblob-stream",
 	"description": "store streams in nsblob",
-	"version": "0.1.10",
+	"version": "0.1.11",
 	"main": "lib/index.js",
 	"bin": {
 		"nsblob-stream": "lib/cli.js"
 	},
 	"author": "Prokop Schield",
 	"dependencies": {
-		"nsblob": "^0.2.27"
+		"nsblob": "^0.2.28"
 	},
 	"devDependencies": {
 		"@types/node": ">=16"
